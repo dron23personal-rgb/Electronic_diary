@@ -1,0 +1,21 @@
+# Основной фреймворк
+Django==5.0.2
+
+# Для фронтенда
+django-bootstrap5==23.4
+django-htmx==1.17.2
+django-tables2==2.6.0 
+
+
+# Для работы с формами
+django-crispy-forms==2.1
+django-filter==23.5
+
+# Для развёртывания
+gunicorn==21.2.0
+whitenoise==6.6.0
+
+# Дополнительные утилиты
+python-dateutil==2.8.2
+reportlab==4.0.9
+

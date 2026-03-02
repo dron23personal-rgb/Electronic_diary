@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная страница{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <div class="row align-items-center min-vh-75 py-5">
+        <div class="col-lg-8 mx-auto text-center">
+            <div class="mb-5">
+                <i class="bi bi-journal-text display-1 text-primary mb-4"></i>
+                <h1 class="display-4 fw-bold mb-4">
+                    Добро пожаловать в систему <span class="text-primary">Электронный дневник</span>
+                </h1>
+                <p class="lead text-muted mb-5">
+                    Платформа для управления учебным процессом,
+                    отслеживания успеваемости и создания отчетов
+                </p>
+
+
+                {% if user.is_authenticated %}
+                <a href="/teachers/" class="btn btn-primary btn-lg px-5 py-3 mb-4">
+                    <i class="bi bi-rocket-takeoff me-2"></i>
+                    Начать работу
+                </a>
+                <div class="mt-2">
+                    <span class="badge bg-success rounded-pill p-2">
+                        <i class="bi bi-check-circle me-1"></i> Вы авторизованы как {{ user.username }}
+                    </span>
+                </div>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-primary btn-lg px-5 py-3 mb-4">
+                    <i class="bi bi-rocket-takeoff me-2"></i>
+                    Начать работу
+                </a>
+                {% endif %}
+
+                <p class="text-muted mt-3">
+                    <small>Нажмите кнопку выше для перехода к основному функционалу</small>
+                </p>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row py-5 mt-5">
+        <div class="col-12 text-center mb-5">
+            <h2 class="fw-bold mb-3">Ключевые возможности</h2>
+            <p class="text-muted lead">Все инструменты для эффективного управления учебным процессом</p>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex p-4 mb-4">
+                        <i class="bi bi-people display-4 text-primary"></i>
+                    </div>
+                    <h4 class="card-title mb-3">Управление учениками</h4>
+                    <p class="card-text text-muted">
+                        Полный контроль над профилями учеников, классами и группами.
+                        Быстрый поиск и фильтрация по любым параметрам.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex p-4 mb-4">
+                        <i class="bi bi-clipboard-data display-4 text-success"></i>
+                    </div>
+                    <h4 class="card-title mb-3">Ведение журнала</h4>
+                    <p class="card-text text-muted">
+                        Удобное выставление оценок, комментарии учителей,
+                        календарь занятий и автоматические уведомления.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex p-4 mb-4">
+                        <i class="bi bi-graph-up display-4 text-info"></i>
+                    </div>
+                    <h4 class="card-title mb-3">Аналитика и отчеты</h4>
+                    <p class="card-text text-muted">
+                        Детальная аналитика успеваемости, автоматические отчеты,
+                        выявление отстающих учеников и динамика прогресса.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row py-5 bg-light rounded-3 mt-4">
+        <div class="col-lg-10 mx-auto">
+            <div class="row align-items-center">
+                <div class="col-md-6 mb-4 mb-md-0">
+                    <div class="p-4">
+                        <h3 class="fw-bold mb-4">Почему выбирают нашу систему?</h3>
+                        <ul class="list-unstyled">
+                            <li class="mb-3">
+                                <div class="d-flex">
+                                    <i class="bi bi-check-circle-fill text-success me-3 fs-5"></i>
+                                    <div>
+                                        <h5 class="mb-1">Интуитивный интерфейс</h5>
+                                        <p class="text-muted mb-0">Простота использования без длительного обучения</p>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="mb-3">
+                                <div class="d-flex">
+                                    <i class="bi bi-check-circle-fill text-success me-3 fs-5"></i>
+                                    <div>
+                                        <h5 class="mb-1">Безопасность данных</h5>
+                                        <p class="text-muted mb-0">Надежное хранение и защита конфиденциальной информации</p>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="mb-3">
+                                <div class="d-flex">
+                                    <i class="bi bi-check-circle-fill text-success me-3 fs-5"></i>
+                                    <div>
+                                        <h5 class="mb-1">Исчерпывающий функционал</h5>
+                                        <p class="text-muted mb-0">Все нужные инструменты в одном месте</p>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-0 shadow">
+                        <div class="card-body p-5 text-center">
+                            <i class="bi bi-bar-chart display-1 text-primary mb-4"></i>
+                            <h4 class="card-title mb-3">Готовы начать?</h4>
+                            <p class="card-text text-muted mb-4">
+                                Присоединяйтесь к сотням учебных заведений,
+                                которые уже используют нашу систему
+                            </p>
+                            {% if user.is_authenticated %}
+                            <a href="/teachers/students/" class="btn btn-outline-primary btn-lg">
+                                <i class="bi bi-arrow-right-circle me-2"></i> Перейти к ученикам
+                            </a>
+                            {% else %}
+                            <a href="{% url 'login' %}" class="btn btn-primary btn-lg">
+                                <i class="bi bi-box-arrow-in-right me-2"></i> Войти в систему
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row py-5">
+        <div class="col-12 text-center mb-5">
+            <h3 class="fw-bold mb-3">Технологии, которые мы используем</h3>
+            <p class="text-muted">Современный стек технологий для надежной работы</p>
+        </div>
+        <div class="col-12">
+            <div class="row justify-content-center text-center">
+
+                <div class="col-md-3 col-6 mb-4">
+                    <div class="tech-card p-4 border rounded bg-white">
+                        <i class="bi bi-braces display-4 text-primary mb-3"></i>
+                        <div class="fw-bold fs-5">Django 5.0</div>
+                    </div>
+                </div>
+
+
+                <div class="col-md-3 col-6 mb-4">
+                    <div class="tech-card p-4 border rounded bg-white">
+                        <i class="bi bi-database display-4 text-success mb-3"></i>
+                        <div class="fw-bold fs-5">SQLite</div>
+                    </div>
+                </div>
+
+
+                <div class="col-md-3 col-6 mb-4">
+                    <div class="tech-card p-4 border rounded bg-white">
+                        <i class="bi bi-bootstrap display-4 text-purple mb-3"></i>
+                        <div class="fw-bold fs-5">Bootstrap 5</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

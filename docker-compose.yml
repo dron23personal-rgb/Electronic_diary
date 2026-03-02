@@ -1,0 +1,20 @@
+services:
+  web:
+    build: .
+    container_name: diary_app
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings
+
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000 & sleep 6 &&
+             echo 'Сервер доступен по адресу http://localhost:8000' &&
+             echo 'Для остановки сервера нажмите Ctrl+C' &&
+             wait"
+
+volumes:
+  sqlite_data:

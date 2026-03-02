@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+
+{% block title %}Статистика{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">
+            <i class="bi bi-bar-chart text-primary me-2"></i>
+            Статистика системы
+        </h1>
+        <div>
+            <span class="badge bg-primary">Обновлено сегодня</span>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card border-left-primary h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="bi bi-people display-6 text-primary"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">Всего учеников</div>
+                            <div class="h4 mb-0 fw-bold">{{ metrics.total_students }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-left-success h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="bi bi-journal-check display-6 text-success"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">Всего оценок</div>
+                            <div class="h4 mb-0 fw-bold">{{ metrics.total_grades }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-left-info h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="bi bi-graph-up display-6 text-info"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">Средний балл</div>
+                            <div class="h4 mb-0 fw-bold">{{ metrics.avg_grade }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-left-warning h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="bi bi-exclamation-triangle display-6 text-warning"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">Двоечники</div>
+                            <div class="h4 mb-0 fw-bold">{{ metrics.needs_attention }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Выберите класс для детальной статистики</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" action="{% url 'analytics:statistics' %}" class="row align-items-center">
+                        <div class="col-md-8 mb-3 mb-md-0">
+                            <select name="class" class="form-select form-select-lg" onchange="this.form.submit()">
+                                <option value="">-- Выберите класс --</option>
+                                {% for class in classes_list %}
+                                <option value="{{ class.name }}" {% if class.selected %}selected{% endif %}>
+                                    {{ class.name }} ({{ class.student_count }} учеников, средний балл: {{ class.avg_grade|default:"0.0" }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-search me-2"></i>Показать
+                                </button>
+                                <a href="{% url 'analytics:statistics' %}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-x-circle me-2"></i>Сбросить
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if class_stats %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-people-fill me-2"></i>
+                        Класс {{ class_stats.name }}
+                        <span class="badge bg-primary ms-2">{{ class_stats.student_count }} учеников</span>
+                        <span class="badge bg-success ms-1">{{ class_stats.total_grades }} оценок</span>
+                        <span class="badge bg-info ms-1">Средний балл: {{ class_stats.avg_grade }}</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Ученик</th>
+                                    <th>Кол-во оценок</th>
+                                    <th>Средний балл</th>
+                                    <th>Последние оценки</th>
+                                    <th>Динамика</th>
+                                    <th>Статус</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in class_stats.students_stats %}
+                                <tr {% if student.has_low_grades %}class="table-warning"{% endif %}>
+                                    <td>
+                                        <strong>{{ student.student.full_name }}</strong>
+                                        {% if student.has_low_grades %}
+                                        <span class="badge bg-danger ms-2">Есть 2</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ student.total_grades }}</td>
+                                    <td>
+                                        <span class="badge {% if student.avg_grade >= 4.0 %}bg-success{% elif student.avg_grade >= 3.0 %}bg-warning{% else %}bg-danger{% endif %} p-2">
+                                            {{ student.avg_grade|default:"0.0" }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex gap-1">
+                                            {% for grade in student.recent_grades %}
+                                            <span class="badge {% if grade.score >= 4 %}bg-success{% elif grade.score == 3 %}bg-warning{% else %}bg-danger{% endif %}">
+                                                {{ grade.subject.name|slice:":3" }}: {{ grade.score }}
+                                            </span>
+                                            {% empty %}
+                                            <span class="text-muted">Нет оценок</span>
+                                            {% endfor %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="{% if '↗' in student.improvement %}text-success{% elif '↘' in student.improvement or '↓' in student.improvement %}text-danger{% else %}text-warning{% endif %}">
+                                            {{ student.improvement }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if student.avg_grade >= 4.0 %}
+                                        <span class="badge bg-success">Отличник</span>
+                                        {% elif student.avg_grade >= 3.5 %}
+                                        <span class="badge bg-warning">Хорошист</span>
+                                        {% elif student.avg_grade >= 3.0 %}
+                                        <span class="badge bg-info">Удовлетв.</span>
+                                        {% elif student.avg_grade > 0 %}
+                                        <span class="badge bg-danger">Слабый</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">Нет оценок</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">
+                                        Нет учеников в этом классе
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Топ предметов</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for subject in top_subjects %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-3">
+                            <div>
+                                <h6 class="mb-1">{{ subject.name }}</h6>
+                                <small class="text-muted">{{ subject.count }} оценок</small>
+                            </div>
+                            <div>
+                                <span class="badge {% if subject.avg_grade >= 4.0 %}bg-success{% elif subject.avg_grade >= 3.0 %}bg-warning{% else %}bg-danger{% endif %} p-2">
+                                    {{ subject.avg_grade }}
+                                </span>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center text-muted py-4">
+                            Нет данных по предметам
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Активность за 10 дней</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Дата</th>
+                                    {% for date in dates %}
+                                    <th class="text-center">{{ date }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Оценок выставлено</td>
+                                    {% for count in grades_per_day %}
+                                    <td class="text-center">{{ count }}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <td>Средний балл</td>
+                                    {% for avg in avg_grades_per_day %}
+                                    <td class="text-center">{{ avg }}</td>
+                                    {% endfor %}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    {% if total_grades_last_10_days == 0 %}
+                    <div class="alert alert-info mt-3">
+                        <i class="bi bi-info-circle me-2"></i>
+                        За последние 10 дней оценок не выставлено
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-4">
+                    <h5 class="mb-3">Быстрые действия</h5>
+                    <div class="d-flex justify-content-center gap-3 flex-wrap">
+                        <a href="{% url 'teachers:student_list' %}" class="btn btn-outline-primary">
+                            <i class="bi bi-people me-2"></i>Ученики
+                        </a>
+                        <a href="{% url 'teachers:grade_create' %}" class="btn btn-outline-info">
+                            <i class="bi bi-plus-circle me-2"></i>Новая оценка
+                        </a>
+                        <a href="{% url 'teachers:student_create' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-person-plus me-2"></i>Новый ученик
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

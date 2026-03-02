@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ student.full_name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="mb-0">
+                <i class="bi bi-person-circle text-primary me-2"></i>
+                {{ student.full_name }}
+            </h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'teachers:student_list' %}">Ученики</a></li>
+                    <li class="breadcrumb-item active">{{ student.full_name }}</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="btn-group">
+            <a href="{% url 'teachers:student_edit' student.id %}" class="btn btn-warning">
+                <i class="bi bi-pencil me-1"></i>Редактировать
+            </a>
+            <a href="{% url 'teachers:add_grade' student.id %}" class="btn btn-success">
+                <i class="bi bi-plus-circle me-1"></i>Добавить оценку
+            </a>
+            <a href="{% url 'teachers:student_delete' student.id %}" class="btn btn-danger">
+                <i class="bi bi-trash me-1"></i>Удалить
+            </a>
+        </div>
+    </div>
+    
+    <div class="row">
+
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Информация об ученике</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Класс:</strong>
+                        <span class="badge bg-primary ms-2">{{ student.group }}</span>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Дата рождения:</strong>
+                        <div>{{ student.birth_date|date:"d.m.Y" }}</div>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Возраст:</strong>
+                        <div>
+                            {% now "Y" as current_year %}
+                            {% now "m" as current_month %}
+                            {% now "d" as current_day %}
+                            {% with birth_year=student.birth_date.year birth_month=student.birth_date.month birth_day=student.birth_date.day %}
+                                {% if current_month|add:"0" > birth_month or current_month|add:"0" == birth_month and current_day|add:"0" >= birth_day %}
+                                    {{ current_year|add:"0"|add:"-"|add:birth_year }}
+                                {% else %}
+                                    {{ current_year|add:"0"|add:"-1"|add:"-"|add:birth_year }}
+                                {% endif %}
+                            {% endwith %} лет
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="mb-3">
+                        <strong>Всего оценок:</strong>
+                        <span class="badge bg-secondary">{{ total_grades }}</span>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Средний балл:</strong>
+                        <span class="badge {% if avg_grade >= 4.0 %}bg-success{% elif avg_grade >= 3.0 %}bg-warning{% else %}bg-danger{% endif %} p-2">
+                            {{ avg_grade|default:"0.0" }}
+                        </span>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Дата добавления:</strong>
+                        <div>{{ student.created_at|date:"d.m.Y H:i" }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Быстрое добавление оценки</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ grade_form.as_p }}
+                        <button type="submit" class="btn btn-primary w-100 mt-3">
+                            <i class="bi bi-check-circle me-2"></i>Добавить оценку
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Оценки по предметам</h5>
+                </div>
+                <div class="card-body">
+                    {% if grades_by_subject %}
+                        {% for subject_name, data in grades_by_subject.items %}
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0">{{ subject_name }}</h6>
+                                    <div>
+                                        <span class="badge bg-secondary">{{ data.count }} оценок</span>
+                                        <span class="badge {% if data.avg >= 4.0 %}bg-success{% elif data.avg >= 3.0 %}bg-warning{% else %}bg-danger{% endif %} ms-2">
+                                            Средний: {{ data.avg }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex flex-wrap gap-2">
+                                    {% for grade in data.grades %}
+                                    <div class="position-relative">
+                                        <span class="badge {% if grade.score >= 4 %}bg-success{% elif grade.score == 3 %}bg-warning{% else %}bg-danger{% endif %} p-2">
+                                            {{ grade.get_score_display }}
+                                            <small class="ms-1">{{ grade.date|date:"d.m" }}</small>
+                                        </span>
+                                        {% if grade.teacher == request.user %}
+                                        <a href="{% url 'teachers:grade_delete' grade.id %}" 
+                                           class="btn btn-sm btn-outline-danger position-absolute top-0 start-100 translate-middle"
+                                           style="padding: 0.1rem 0.3rem; font-size: 0.7rem;"
+                                           title="Удалить оценку">
+                                            <i class="bi bi-x"></i>
+                                        </a>
+                                        {% endif %}
+                                        {% if grade.comment %}
+                                        <div class="small text-muted mt-1">{{ grade.comment|truncatechars:50 }}</div>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="bi bi-journal-x display-4 mb-3"></i>
+                            <h5>Оценок пока нет</h5>
+                            <p>Добавьте первую оценку для этого ученика</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Все оценки (последние 20)</h5>
+                </div>
+                <div class="card-body">
+                    {% if grades %}
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Дата</th>
+                                    <th>Предмет</th>
+                                    <th>Оценка</th>
+                                    <th>Комментарий</th>
+                                    <th>Учитель</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for grade in grades|slice:":20" %}
+                                <tr {% if grade.score == 2 %}class="table-warning"{% endif %}>
+                                    <td>{{ grade.date|date:"d.m.Y" }}</td>
+                                    <td>{{ grade.subject.name }}</td>
+                                    <td>
+                                        <span class="badge {% if grade.score >= 4 %}bg-success{% elif grade.score == 3 %}bg-warning{% else %}bg-danger{% endif %}">
+                                            {{ grade.get_score_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if grade.comment %}
+                                        <small>{{ grade.comment|truncatechars:30 }}</small>
+                                        {% else %}
+                                        <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <small>{{ grade.teacher.username|default:"-" }}</small>
+                                    </td>
+                                    <td>
+                                        {% if grade.teacher == request.user %}
+                                        <a href="{% url 'teachers:grade_delete' grade.id %}" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted py-3">
+                        Нет оценок для отображения
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="{% url 'teachers:student_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Вернуться к списку
+        </a>
+    </div>
+</div>
+{% endblock %}

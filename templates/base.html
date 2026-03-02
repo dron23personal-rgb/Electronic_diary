@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Электронный дневник{% endblock %}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --sidebar-width: 250px;
+            --sidebar-collapsed: 70px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fc;
+            display: flex;
+            min-height: 100vh;
+        }
+
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, #4e73df 0%, #224abe 100%);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            transition: all 0.3s;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-brand {
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-brand .logo-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-brand h5 {
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .sidebar-brand small {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 1rem 0;
+            overflow-y: auto;
+        }
+
+        .sidebar-nav::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .sidebar-nav::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-nav::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        .nav-item {
+            margin: 0.2rem 1rem;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.85);
+            padding: 0.85rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+            text-decoration: none;
+        }
+
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-weight: 600;
+        }
+
+        .nav-link i {
+            width: 1.5rem;
+            text-align: center;
+            margin-right: 0.75rem;
+            font-size: 1.2rem;
+        }
+
+        .nav-text {
+            transition: opacity 0.3s;
+        }
+
+        .main-content {
+            flex: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.with-sidebar {
+            margin-left: var(--sidebar-width);
+        }
+
+        .main-content.without-sidebar {
+            margin-left: 0;
+            width: 100%;
+        }
+
+        .topbar {
+            background: white;
+            border-bottom: 1px solid #e3e6f0;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+            height: 70px;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background: #f8f9fc;
+            border-radius: 0.5rem;
+            border: 1px solid #e3e6f0;
+        }
+
+        .user-info i {
+            font-size: 1.5rem;
+            color: #4e73df;
+            margin-right: 0.75rem;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #5a5c69;
+        }
+
+        .user-role {
+            font-size: 0.8rem;
+            color: #858796;
+        }
+
+        .content-container {
+            flex: 1;
+            padding: 2rem;
+            background-color: #f8f9fc;
+        }
+
+        .footer {
+            background-color: #f8f9fc;
+            border-top: 1px solid #e3e6f0;
+            padding: 1.5rem;
+            text-align: center;
+            color: #6e707e;
+            margin-top: auto;
+        }
+
+        .sidebar-user {
+            padding: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .user-avatar {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar-icon {
+            font-size: 2rem;
+            margin-right: 0.75rem;
+            color: white;
+        }
+
+        .user-avatar-info {
+            flex: 1;
+        }
+
+        .user-avatar-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: white;
+            margin-bottom: 0.1rem;
+        }
+
+        .user-avatar-role {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 0;
+            }
+
+            .sidebar.mobile-show {
+                transform: translateX(0);
+                width: var(--sidebar-width);
+            }
+
+            .main-content.with-sidebar,
+            .main-content.without-sidebar {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .user-info {
+                padding: 0.4rem 0.8rem;
+            }
+
+            .user-details {
+                display: none;
+            }
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #4e73df;
+            cursor: pointer;
+            margin-right: 1rem;
+        }
+
+        .btn {
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .card {
+            border: none;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #e74a3b;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #4e73df;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #5a5c69;
+        }
+
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(78, 115, 223, 0.05);
+        }
+
+
+        .badge {
+            font-weight: 500;
+        }
+
+
+        .card {
+            border-radius: 0.5rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    {% if user.is_authenticated %}
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="logo-icon">
+                <i class="bi bi-journal-text"></i>
+            </div>
+            <h5 class="mb-0">Электронный дневник</h5>
+            <small>Профессиональная система</small>
+        </div>
+
+        <div class="sidebar-nav">
+            <ul class="nav flex-column">
+
+
+                <li class="nav-item">
+                    <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'home' %}">
+                        <i class="bi bi-house-door"></i>
+                        <span class="nav-text">Главная</span>
+                    </a>
+                </li>
+
+
+                <li class="nav-item">
+                    <a class="nav-link {% if request.path == '/teachers/' or request.path == '/teachers' %}active{% endif %}" href="/teachers/">
+                        <i class="bi bi-speedometer2"></i>
+                        <span class="nav-text">Панель учителя</span>
+                    </a>
+                </li>
+
+
+                <li class="nav-item">
+                    <a class="nav-link {% if request.path|slice:'0:16' == '/teachers/students' %}active{% endif %}" href="/teachers/students/">
+                        <i class="bi bi-people"></i>
+                        <span class="nav-text">Ученики</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {% if 'analytics/statistics' in request.path %}active{% endif %}" href="{% url 'analytics:statistics' %}">
+                        <i class="bi bi-bar-chart"></i>
+                        <span class="nav-text">Статистика</span>
+                    </a>
+                </li>
+
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin/" target="_blank">
+                        <i class="bi bi-gear"></i>
+                        <span class="nav-text">Админ панель</span>
+                        {% if user.is_staff %}
+                        <span class="badge bg-danger ms-auto">Admin</span>
+                        {% endif %}
+                    </a>
+                </li>
+
+
+                <li class="nav-item mt-4">
+                    <hr style="border-color: rgba(255, 255, 255, 0.1); margin: 1rem 0;">
+                </li>
+
+
+                <li class="nav-item mt-2">
+                    <form method="post" action="{% url 'logout' %}" class="w-100">
+                        {% csrf_token %}
+                        <button type="submit" class="nav-link text-left w-100" style="background: none; border: none; text-align: left;">
+                            <i class="bi bi-box-arrow-right"></i>
+                            <span class="nav-text">Выход</span>
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+
+
+        <div class="sidebar-user">
+            <div class="user-avatar">
+                <div class="user-avatar-icon">
+                    <i class="bi bi-person-circle"></i>
+                </div>
+                <div class="user-avatar-info">
+                    <div class="user-avatar-name">{{ user.username }}</div>
+                    <div class="user-avatar-role">
+                        {% if user.is_staff %}Администратор{% else %}Учитель{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+
+    <div class="main-content {% if user.is_authenticated %}with-sidebar{% else %}without-sidebar{% endif %}">
+
+        <div class="topbar">
+            <div class="topbar-left">
+
+                {% if user.is_authenticated %}
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="bi bi-list"></i>
+                </button>
+                {% endif %}
+
+
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-journal-text fs-4 text-primary me-2"></i>
+                    <span class="fw-bold d-none d-md-block">Электронный дневник</span>
+                    <span class="fw-bold d-block d-md-none">ЭД</span>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                {% if user.is_authenticated %}
+
+                <div class="user-info">
+                    <i class="bi bi-person-circle"></i>
+                    <div class="user-details">
+                        <div class="user-name">{{ user.username }}</div>
+                        <div class="user-role">
+                            {% if user.is_staff %}Администратор{% else %}Учитель{% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+
+                <div class="d-flex align-items-center">
+                    <a href="{% url 'login' %}" class="btn btn-outline-primary me-2">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Войти
+                    </a>
+                    <a href="{% url 'register' %}" class="btn btn-primary">
+                        <i class="bi bi-person-plus me-1"></i> Регистрация
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+
+        <div class="content-container">
+            {% block content %}
+            {% endblock %}
+        </div>
+
+
+        <footer class="footer">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-6 text-md-start">
+                        <span class="text-muted">
+                            <i class="bi bi-journal-text me-1"></i> Электронный дневник
+                        </span>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <span class="text-muted">
+                            &copy; {% now "Y" %} г.
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    {% block extra_js %}{% endblock %}
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.getElementById('sidebar');
+
+            if (mobileMenuBtn && sidebar) {
+                mobileMenuBtn.addEventListener('click', function() {
+                    sidebar.classList.toggle('mobile-show');
+
+
+                    if (sidebar.classList.contains('mobile-show')) {
+                        createOverlay();
+                    } else {
+                        removeOverlay();
+                    }
+                });
+            }
+
+
+            function createOverlay() {
+                const overlay = document.createElement('div');
+                overlay.id = 'sidebar-overlay';
+                overlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0,0,0,0.5);
+                    z-index: 999;
+                `;
+                overlay.addEventListener('click', function() {
+                    sidebar.classList.remove('mobile-show');
+                    removeOverlay();
+                });
+                document.body.appendChild(overlay);
+            }
+
+            function removeOverlay() {
+                const overlay = document.getElementById('sidebar-overlay');
+                if (overlay) {
+                    overlay.remove();
+                }
+            }
+
+
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(button => {
+                button.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                });
+                button.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+
+            const currentPath = window.location.pathname;
+            const sidebarLinks = document.querySelectorAll('.sidebar-nav .nav-link');
+            if (sidebarLinks) {
+                sidebarLinks.forEach(link => {
+                    const href = link.getAttribute('href');
+                    if (href && currentPath.includes(href.replace('/', '')) && href !== '/') {
+                        link.classList.add('active');
+                    }
+                });
+            }
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && sidebar) {
+                    sidebar.classList.remove('mobile-show');
+                    removeOverlay();
+                }
+            });
+
+            function updateTime() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('ru-RU', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                const dateString = now.toLocaleDateString('ru-RU', {
+                    weekday: 'short',
+                    day: 'numeric',
+                    month: 'short'
+                });
+
+            }
+
+        });
+    </script>
+</body>
+</html>
