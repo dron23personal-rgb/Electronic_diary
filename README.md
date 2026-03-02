@@ -63,26 +63,6 @@ python manage.py createsuperuser                           # для локаль
 
 2. Затем перейдите по адресу /admin/ и используйте созданные учётные данные
 
-### Структура проекта
-
-electronic_diary/
-├── config/               # Настройки Django
-├── core/                 # Общие модели
-├── teachers/             # Приложение для учителей
-├── analytics/            # Приложение статистики
-├── accounts/             # Аутентификация
-├── templates/            # HTML-шаблоны
-├── static/               # CSS, JavaScript
-├── media/                # Загружаемые файлы
-├── screenshots/          # Скриншоты с результатами работы
-├── .gitignore
-├── docker-compose.yml
-├── Dockerfile
-├── requirements.txt
-├── requirements_dev.txt
-└── README.md
-
-
 ### Автор
 ФИО: Гудков Андрей Николаевич
 GitHub: dron23personal-rgb
