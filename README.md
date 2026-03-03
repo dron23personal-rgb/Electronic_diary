@@ -14,6 +14,15 @@
 -  Адаптивный интерфейс на Bootstrap 5
 -  Готовый Docker-контейнер для быстрого запуска
 
+## Скриншоты
+
+| | |
+|:---:|:---:|
+| ![Главная страница до авторизации](screenshots/home_before_login.png) | ![Главная страница](screenshots/home.png) |
+| ![Панель учителя](screenshots/dashboard.png) | ![Список учеников](screenshots/student_list.png) |
+| ![Информация об ученике](screenshots/student_detail.png) | ![Добавление оценки](screenshots/add_grade.png) |
+| ![Добавление ученика](screenshots/add_student.png) | ![Статистика](screenshots/statistics.png) |
+
 ## Технологии
 
 - **Backend:** Python 3.12, Django 5.0.2, SQLite (включена в репозиторий с демо-данными)
